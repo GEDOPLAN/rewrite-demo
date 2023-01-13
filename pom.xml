@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -95,4 +95,121 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+
+    <!--
+    Demo profile for enforcing the absence of old JEE imports
+    Include it in the build by mvn -PbanJavx ...
+    -->
+    <profile>
+      <id>banJavax</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>de.skuzzle.enforcer</groupId>
+                <artifactId>restrict-imports-enforcer-rule</artifactId>
+                <version>2.0.0</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>Ban Java EE imports</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <RestrictImports>
+                      <reason>Use jakarta.* imports</reason>
+                      <bannedImports>
+                        <bannedImport>javax.activation.**</bannedImport>
+                        <bannedImport>javax.annotation.**</bannedImport>
+                        <bannedImport>javax.batch.**</bannedImport>
+                        <bannedImport>javax.validation.**</bannedImport>
+                        <bannedImport>javax.decorator.**</bannedImport>
+                        <bannedImport>javax.ejb.**</bannedImport>
+                        <bannedImport>javax.el.**</bannedImport>
+                        <bannedImport>javax.enterprise.**</bannedImport>
+                        <bannedImport>javax.faces.**</bannedImport>
+                        <bannedImport>javax.inject.**</bannedImport>
+                        <bannedImport>javax.interceptor.**</bannedImport>
+                        <bannedImport>javax.jms.**</bannedImport>
+                        <bannedImport>javax.json.**</bannedImport>
+                        <bannedImport>javax.jws.**</bannedImport>
+                        <bannedImport>javax.mail.**</bannedImport>
+                        <bannedImport>javax.persistence.**</bannedImport>
+                        <bannedImport>javax.resource.**</bannedImport>
+                        <bannedImport>javax.security.**</bannedImport>
+                        <bannedImport>javax.servlet.**</bannedImport>
+                        <bannedImport>javax.transaction.**</bannedImport>
+                        <bannedImport>javax.websocket.**</bannedImport>
+                        <bannedImport>javax.ws.**</bannedImport>
+                        <bannedImport>javax.xml.bind.**</bannedImport>
+                        <bannedImport>javax.soap.**</bannedImport>
+                        <bannedImport>javax.xml.ws.**</bannedImport>
+                      </bannedImports>
+                    </RestrictImports>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+    Demo profile for upgrading the sources from JEE 8 to JEE 9+
+    Run it with mvn -PtoJakarta rewrite:run
+
+    After the upgrade, adjust this file by
+    - changing the version of jakarta.jakartaee-api to 10.0.0
+    - removing all other jakarta.* dependencies
+    - adding <qualifier>jakarta</qualifier> to the PrimeFaces dependency
+    - changing wildfly.version to 27.0.0.Final
+    -->
+    <profile>
+      <id>toJakarta</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>4.38.2</version>
+            <configuration>
+              <activeRecipes>
+                <recipe>org.openrewrite.java.migrate.jakarta.JavaxMigrationToJakarta</recipe>
+                <recipe>org.openrewrite.java.migrate.jakarta.JavaxPersistenceXmlToJakartaPersistenceXml</recipe>
+              </activeRecipes>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.openrewrite.recipe</groupId>
+                <artifactId>rewrite-migrate-java</artifactId>
+                <version>1.16.0-SNAPSHOT</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+      <repositories>
+        <repository>
+          <id>sonatypeSnapshots</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 </project>

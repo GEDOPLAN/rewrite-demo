@@ -1,0 +1,37 @@
+= Demo project for OpenRewrite
+
+This project builds a small JEE application composed of a REST api, some (CDI) injected services and a JPA based persistence layer.
+
+You can build and run the application with WildFly Bootable Jar:
+
+[source, shell]
+----
+mvn wildfly-jar:dev-watch
+----
+
+The small REST api includes an endpoint for retrieving all `Person` objects from the database:
+
+[source, shell]
+----
+curl localhost:8080/api/persons
+----
+
+The in-memory db is populated with a few test entries.
+
+For upgrading the application from JEE 8 to JEE 10, the `pom.xml` includes a configuration of the OpenRewrite plugin. For clarity it has been placed into a Maven profile. Run it by
+
+[source, shell]
+----
+mvn -PtoJakarta rewrite:run
+----
+
+You have to adjust `pom.xml` afterwards - please see the comment on top of the profile definition.
+
+Now `mvn wildfly-jar:dev-watch` will execute the upgraded application in WildFly 27!
+
+In order to check if all necessary package name changes have been made, another Maven profile is included. Activate it by
+
+[source, shell]
+----
+mvn -PbanJavax
+----
