@@ -5,8 +5,10 @@ import de.gedoplan.showcase.persistence.PersonRepository;
 import de.gedoplan.showcase.service.PersonService;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
@@ -59,5 +61,13 @@ public class PersonResource {
   @Produces(MediaType.APPLICATION_JSON)
   public double getAverageAge() {
     return this.personService.getAverageAge();
+  }
+
+  @PostConstruct
+  void initTestData() {
+    if (this.personRepository.findAll().isEmpty()) {
+      this.personRepository.persist(new Person("Dagobert Duck", LocalDate.of(1905,12,5)));
+      this.personRepository.persist(new Person("Donald Duck", LocalDate.of(1931,3,13)));
+    }
   }
 }

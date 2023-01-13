@@ -5,10 +5,12 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 import de.gedoplan.showcase.domain.Person;
 
 @ApplicationScoped
+@Transactional
 public class PersonRepository {
   @Inject
   EntityManager entityManager;
